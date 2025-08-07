@@ -1,0 +1,68 @@
+database:
+  url: "postgresql+psycopg2://postgres@postgres-db/db"
+
+email:
+  user: cs.henriquemchott@gmail.com
+  password: ewbf abko zvua ddrd
+
+logging:
+  version: 1
+
+  loggers:
+    root:
+      level: DEBUG
+      handlers:
+        - consoleHandler
+        - fileHandler
+
+    api:
+      level: DEBUG
+      handlers:
+        - consoleHandler
+        - fileHandler
+      qualname: api
+      propagate: false
+
+    proj:
+      level: DEBUG
+      handlers:
+        - consoleHandler
+        - fileHandler
+      qualname: proj
+      propagate: false
+
+    uvicorn.error:
+      level: DEBUG
+      handlers:
+        - consoleHandler
+        - fileHandler
+      propagate: false
+
+    uvicorn.access:
+      level: DEBUG
+      handlers:
+        - consoleHandler
+        - fileHandler
+      propagate: false
+
+  handlers:
+    consoleHandler:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: simpleFormatter
+      stream: ext://sys.stdout
+
+    fileHandler:
+      class: logging.handlers.RotatingFileHandler
+      level: DEBUG
+      formatter: simpleFormatter
+      filename: runtime.d/api.log
+      mode: a+
+      maxBytes: 5000000
+      backupCount: 3
+
+  formatters:
+    simpleFormatter:
+      format: '%(filename)s - %(lineno)d - %(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+  filters: {}

@@ -1,0 +1,69 @@
+services:
+  postgres:
+    image: postgres:15
+
+    container_name: postgres-db
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: db
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+    ports:
+      - 5432:5432
+
+  redis:
+    image: redis:7
+
+    container_name: redis-db
+
+    ports:
+      - 6379:6379
+
+  celery_worker:
+    container_name: celery_worker
+
+    build:
+      context: .
+      dockerfile: python.Dockerfile
+
+    environment:
+      PROJECT_CONFIG_PATH: "./runtime.d/ProjectConfig.yaml"
+
+    command: python3.11 -m celery -A simserverless worker --loglevel=info
+
+    volumes:
+      - ./.data:/usr/src/app/.data
+      - ./simserverless:/usr/src/app/simserverless
+      - ./projectconfig:/usr/src/app/projectconfig
+      - ./serverless:/usr/src/app/serverless
+      - ./petronect:/usr/src/app/petronect
+      - ./runtime.d:/usr/src/app/runtime.d
+
+    depends_on:
+      - redis
+      - postgres
+
+  celery_beat:
+    container_name: celery_beat
+
+    build:
+      context: .
+      dockerfile: python.Dockerfile
+
+    environment:
+      PROJECT_CONFIG_PATH: "./runtime.d/ProjectConfig.yaml"
+
+    command: python3.11 -m celery -A simserverless beat --loglevel=info
+
+    volumes:
+      - ./.data:/usr/src/app/.data
+      - ./simserverless:/usr/src/app/simserverless
+      - ./projectconfig:/usr/src/app/projectconfig
+      - ./serverless:/usr/src/app/serverless
+      - ./petronect:/usr/src/app/petronect
+      - ./runtime.d:/usr/src/app/runtime.d
+
+    depends_on:
+      - redis
+      - postgres
